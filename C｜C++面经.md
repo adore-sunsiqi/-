@@ -202,35 +202,55 @@ extern用来插入可执行的C代码。由extern关键字声明的常量可以�
 
 需四步：1、指定编译器设置；2、定义规则；3、清理文件；4、使用make命令执行。
 
-CC = gcc                          编译器指令：默认gcc
+	CC = gcc                          编译器指令：默认gcc
 
-CFLAGS = -Wall -fPIC              编译选项：-Wall表示启用所有警告，-fPIC表示生成位置独立的代码
+	CFLAGS = -Wall -fPIC              编译选项：-Wall表示启用所有警告，-fPIC表示生成位置独立的代码
 
-LDFLAGS = -share                  连接选项：-shared表示生成一个动态库
+	LDFLAGS = -share                  连接选项：-shared表示生成一个动态库
 
-TARGET = libexample.so            目标动态库的名称
+	TARGET = libexample.so            目标动态库的名称
 
-SRCS = example.c                  源文件列表，这里只有一个example.c
+	SRCS = example.c                  源文件列表，这里只有一个example.c
 
-OBJS = $(SRCS:.c=.o)              目标文件列表，根据源文件列表生成
+	OBJS = $(SRCS:.c=.o)              目标文件列表，根据源文件列表生成
 
-.PHONY: all clean                 指示 all 和 clean 是伪目标。无论是否存在同名的文件，执行这些目标都会执行目标中定义的操作。可以避免因为存在同名文件而导致构建过程无法正确执行的问题
+	.PHONY: all clean                 指示 all 和 clean 是伪目标。无论是否存在同名的文件，执行这些目标都会执行目标中定义的操作。可以避免因为存在同名文件而导致构建过程无法正确执行的问题
 
-all: $(TARGET)                    默认规则，执行$(TARGET)规则。如果没有指定的规则，默认执行all规则。
+	all: $(TARGET)                    默认规则，执行$(TARGET)规则。如果没有指定的规则，默认执行all规则。
 
-$(TARGET): $(OBJS)                生成目标动态库的规则，依赖于$(OBJS)规则
+	$(TARGET): $(OBJS)                生成目标动态库的规则，依赖于$(OBJS)规则
 
-	$(CC) $(LDFLAGS) -o $@ $^       使用$(CC)和$(LDFLAGS)进行链接
+		$(CC) $(LDFLAGS) -o $@ $^       使用$(CC)和$(LDFLAGS)进行链接
 
-$(OBJS): $(SRCS)                  生成目标文件的规则，依赖于对应的源文件
+	$(OBJS): $(SRCS)                  生成目标文件的规则，依赖于对应的源文件
 
-	$(CC) $(CFLAGS) -c $< -o $@     使用$(CC)和$(CFLAGS)进行编译
+		$(CC) $(CFLAGS) -c $< -o $@     使用$(CC)和$(CFLAGS)进行编译
 
-clean:                            清理生成的目标文件和动态库。通过执行命令make clean。
+	clean:                            清理生成的目标文件和动态库。通过执行命令make clean。
 
-	rm -f $(OBJS) $(TARGET)
+		rm -f $(OBJS) $(TARGET)
 
 # 26、查看core文件
+
+如果无法生成core文件：
+
+1、ulimit -a：查看系统受限资源
+
+2、ulimit -c unlimited：设置core不受限
+
+3、cat /proc/sys/kernel/core_pattern：查看系统对core文件的处理，若显示%p ... %E，说明系统对core进行了默认处理
+
+4、sudo service apport stop：关闭系统支持服务。start 打开服务；restart 重启服务
+
+生成和打开core文件：
+
+1、gcc编译时加入 -g 参数
+
+2、gdb core
+
+3、core-file core
+
+4、set breakpoint
 
 # 27、静态变量什么时候初始化？
 
@@ -246,7 +266,7 @@ C++中当且仅当对象首次使用时才构造。但是全局对象在main函�
 
 1、static_cast：用的最多；用于隐式转换，非const转const，void*转指针等。
 
-2、dynamic_cast:动态类型转换；用于含有虚函数的类进行类层次间的向上向下转化；只能用于转换指针和引用；非法向下转化时，对于指针则返回NULL，对于引用则抛出异常。
+2、dynamic_cast：动态类型转换；用于含有虚函数的类进行类层次间的向上向下转化；只能用于转换指针和引用；非法向下转化时，对于指针则返回NULL，对于引用则抛出异常。
 
 3、const_cast：const转换非const。
 
@@ -278,23 +298,23 @@ C++中当且仅当对象首次使用时才构造。但是全局对象在main函�
 
 2、C中使用gcc的attribute关键字，声明constructor和destructor。使用__attribute__((constructor))关键字可以声明一个函数在程序启动时自动执行。这个函数会在main函数之前执行，并且可以用于执行一些初始化任务。但是尽管构造函数在程序启动时自动执行，但在程序退出时，并不会自动调用析构函数。如果需要在程序退出时执行一些清理任务，可以使用__attribute__((destructor))关键字来声明析构函数。
 
-#include <stdio.h>
+	#include <stdio.h>
 
-void my_constructor(void) __attribute__((constructor));
+	void my_constructor(void) __attribute__((constructor));
 
-void my_constructor(void) {
+	void my_constructor(void) {
 
-    printf("Constructor called!\n"); 
+    	printf("Constructor called!\n"); 
     
-}
+	}
 
-int main() {
+	int main() {
 
-    printf("Main function\n");
+    	printf("Main function\n");
     
-    return 0;
+    	return 0;
     
-}
+	}
 
 # 34、流量控制和拥塞控制
 
@@ -316,7 +336,55 @@ int main() {
 
 K堆排序：建立一个K个元素的堆，不断移除栈顶元素。
 
-# 38、
+# 38、云计算的三种服务模式
+
+1、laaS（基础设施即服务）：提供基础的计算资源，用户自由按需配置
+
+2、PaaS（平台即服务）：提供应用程序开发和部署的平台，用户再次平台上开发、测试、部署自己的程序
+
+3、SaaS（软件即服务）：提供完整的应用程序和服务
+
+# 39、公有云和私有云
+
+公有云：由云服务提供商建立和管理的云计算平台，为用户提供按需付费的计算和存储服务，多用户共享资源。
+
+私有云：企业内部建立和管理的云计算平台，为内部用户提供权限访问，具有更高的安全性和可控性，适用于隐私性和数据安全性要求高的企业。
+
+# 40、final和finally的区别
+
+final关键词：final关键词修饰的变量是一个常量，名称全部大写，字母之间下划线。
+
+1、修饰的成员变量：必须在声明时，构造器初始化块中进行初始化赋值
+
+2、修饰的局部变量：即可指定定义时的默认值，也可以不指定默认值
+
+3、修饰的类是一个终类，不能被继承
+
+4、修饰的方法不能被重写，但可以重载
+
+finally关键字：通常放在try、catch的后面，可直接放在try后面。finally中的语句是正常执行或异常处理之后必须执行的语句，用来释放资源。如果无需释放资源时，可不加finally块。
+
+# 41、try后面必须要跟catch语句吗？
+
+不一定。try后面必须要有catch或finally。但是不能同时省略。如果没有异常需要处理，可不跟catch，而直接跟finally。
+
+# 42、四种引用类型
+
+对象；数组；函数；接口
+
+# 43、接口和类的区别
+
+类：封装数据和方法，创建对象。
+
+接口：提供方法的实现，封装实现的方法。
+
+# 44、设计模式
+
+1、工厂模式：提供一个接口来创建对象，具体的创建过程由工厂类去实现，将对象的创建和使用分离。
+
+2、单例模式：一个类只有一个实例，提供一个全局访问点。将public和private数据和方法静态化，构造函数私有化。适用于资源共享、日志、数据库连接池、线程池。
+
+3、观察者模式：一对多；一个变，所有依赖的对象都收到通知更新。
 
 
 
